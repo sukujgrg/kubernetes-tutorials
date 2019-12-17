@@ -50,9 +50,9 @@ cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: redapp
+  name: red
   labels:
-    name: redapp
+    name: red
 spec:
   volumes:
     - name: webdata
@@ -63,7 +63,7 @@ spec:
       volumeMounts:
         - name: webdata
           mountPath: "/webdata"
-      command: ["/bin/sh", "-c", 'echo "ONE" > /webdata/index.html']
+      command: ["/bin/sh", "-c", 'echo "RED" > /webdata/index.html']
   containers:
     - image: nginx
       name: nginx
