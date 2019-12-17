@@ -50,9 +50,9 @@ cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-one
+  name: redapp
   labels:
-    name: nginx-one
+    name: redapp
 spec:
   volumes:
     - name: webdata
@@ -74,7 +74,7 @@ EOF
 ```
 
 ```
-kubectl expose pod nginx-one --port 80 --name nginx-one
+kubectl expose pod red --port 80 --name red-svc
 ```
 
 #### Deploy ingress resource
@@ -85,14 +85,24 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: ingress-resource-1
+  annotations:
+    nginx.org/rewrites: |
+      serviceName=red-svc rewrite=/;
 spec:
   rules:
-  - host: one.example.com
+  - host: red.example.com
     http:
       paths:
       - backend:
-          serviceName: nginx-one
+          serviceName: red-svc
           servicePort: 80
+  - host: example.com
+    http:
+      paths:
+      - path: /red
+        backend:
+          serviceName: red-svc
+          servicePort: 80
+
 EOF
 ```
-
