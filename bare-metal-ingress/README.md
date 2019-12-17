@@ -24,10 +24,12 @@ export MANIFESTS=https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/v
 #### Create namespace, secrets, config maps and rbac
 
 ```
-kubectl create -f ${MANIFESTS}/common/ns-and-sa.yaml
-kubectl create -f ${MANIFESTS}/common/default-server-secret.yaml
-kubectl create -f ${MANIFESTS}/common/nginx-config.yaml
-kubectl create -f ${MANIFESTS}/rbac/rbac.yaml
+{
+  kubectl create -f ${MANIFESTS}/common/ns-and-sa.yaml
+  kubectl create -f ${MANIFESTS}/common/default-server-secret.yaml
+  kubectl create -f ${MANIFESTS}/common/nginx-config.yaml
+  kubectl create -f ${MANIFESTS}/rbac/rbac.yaml
+}
 ```
 
 #### Create ingress controller as a Deamonset
@@ -69,7 +71,9 @@ spec:
         - name: webdata
           mountPath: "/usr/share/nginx/html"
 EOF
+```
 
+```
 kubectl expose pod nginx-one --port 80 --name nginx-one
 ```
 
