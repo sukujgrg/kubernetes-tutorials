@@ -44,13 +44,51 @@ kubectl create -f ${MANIFESTS}/daemon-set/nginx-ingress.yaml
 #### Deploy the application and expose it (ClusterIP)
 
 ```
-kubectl create -f resources/ingress-demo-web-one.yaml
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-one
+  labels:
+    name: nginx-one
+spec:
+  volumes:
+    - name: webdata
+      emptyDir: {}
+  initContainers:
+    - name: web-content
+      image: busybox
+      volumeMounts:
+        - name: webdata
+          mountPath: "/webdata"
+      command: ["/bin/sh", "-c", 'echo "ONE" > /webdata/index.html']
+  containers:
+    - image: nginx
+      name: nginx
+      volumeMounts:
+        - name: webdata
+          mountPath: "/usr/share/nginx/html"
+EOF
+
 kubectl expose pod nginx-one --port 80 --name nginx-one
 ```
 
 #### Deploy ingress resource
 
 ```
-kubectl apply -f resources/ingress-resource-1.yaml
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-resource-1
+spec:
+  rules:
+  - host: one.example.com
+    http:
+      paths:
+      - backend:
+          serviceName: nginx-one
+          servicePort: 80
+EOF
 ```
 
