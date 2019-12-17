@@ -7,21 +7,27 @@ Ingress controller on Bare metal
 - Ingress Controller (eg: kubernetes-ingress from nginx-inc) / it's manifests
 
 ## Steps
-
 ### Install Nginx Controller
 
-source: [nginxinc/kubernetes](https://github.com/nginxinc/kubernetes-ingress/blob/v1.5.8/docs/installation.md)
-nginx controller version : v1.5.8
+NGINX Ingress Controller :  [nginxinc/kubernetes](https://github.com/nginxinc/kubernetes-ingress/tree/v1.5.8).
+
+Version : v1.5.8
+
+#### NGINX Ingress Controller manifests
+
+NGINX Ingress Controller manifests are available [here](https://github.com/nginxinc/kubernetes-ingress/tree/v1.5.8/deployments)
+
+```
+export MANIFESTS=https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/v1.5.8/deployments
+```
 
 #### Create namespace, secrets, config maps and rbac
 
 ```
-export YAML_RESOURCES=https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/v1.5.8/deployments
-
-kubectl create -f ${YAML_RESOURCES}/common/ns-and-sa.yaml
-kubectl create -f ${YAML_RESOURCES}/common/default-server-secret.yaml
-kubectl create -f ${YAML_RESOURCES}/common/nginx-config.yaml
-kubectl create -f ${YAML_RESOURCES}/rbac/rbac.yaml
+kubectl create -f ${MANIFESTS}/common/ns-and-sa.yaml
+kubectl create -f ${MANIFESTS}/common/default-server-secret.yaml
+kubectl create -f ${MANIFESTS}/common/nginx-config.yaml
+kubectl create -f ${MANIFESTS}/rbac/rbac.yaml
 ```
 
 #### Create ingress controller as a Deamonset
@@ -31,12 +37,10 @@ to the same ports of the node where the container is running. To access the Ingr
 and an IP address of any node of the cluster where the Ingress controller is running.
 
 ```
-kubectl create -f ${YAML_RESOURCES}/daemon-set/nginx-ingress.yaml
+kubectl create -f ${MANIFESTS}/daemon-set/nginx-ingress.yaml
 ```
 
-
 ### Deploy the application and Ingress resource
-
 #### Deploy the application and expose it (ClusterIP)
 
 ```
