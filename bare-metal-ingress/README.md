@@ -1,17 +1,17 @@
 Ingress controller on Bare metal
 ---
 
-## What is required for this example?
-- a kubernetes cluster
-- a load balancer (eg: HaProxy)
-- Ingress Controller (eg: kubernetes-ingress from nginx-inc) / it's manifests
+## Introduction
+This guide deploys an Ingress Controller and then configure an Ingress resource to route external requestes to kubernetes services.
+- There are two nginx based Ingress Controllers
+  - https://github.com/kubernetes/ingress-nginx
+  - https://github.com/nginxinc/kubernetes-ingress
+- This guide is using the Ingress Controller project under NGINX Inc's [repo](https://github.com/nginxinc/kubernetes-ingress)
+
+## Prerequisites
+- Bare metal working kubernetes cluster
 
 ## Steps
-### Install Nginx Controller
-
-NGINX Ingress Controller :  [nginxinc/kubernetes](https://github.com/nginxinc/kubernetes-ingress/tree/v1.5.8).
-
-Version : v1.5.8
 
 #### NGINX Ingress Controller manifests
 
@@ -43,8 +43,7 @@ kubectl create -f ${MANIFESTS}/daemon-set/nginx-ingress.yaml
 ```
 
 ### Deploy the application and Ingress resource
-#### Deploy the application and expose it (ClusterIP)
-
+#### Deploy the application
 ```
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
@@ -73,11 +72,14 @@ spec:
 EOF
 ```
 
+#### Expose the application with ClusterIP Service
 ```
 kubectl expose pod red --port 80 --name red-svc
 ```
 
-#### Deploy ingress resource
+#### Deploy Ingress resource
+
+_Note: All annotations honered by NGINX Inc' Ingress Controller is defined [here](https://github.com/nginxinc/kubernetes-ingress/blob/v1.5.8/docs/configmap-and-annotations.md)_
 
 ```
 cat <<EOF | kubectl apply -f -
@@ -105,4 +107,50 @@ spec:
           servicePort: 80
 
 EOF
+```
+
+### Demo
+
+For the demo purpose, get the IP address any of the worker node and hit on it like following. In practice a loadbalancer, with all the worker node's IP configured in the backend, should be used.
+
+```
+ubuntu@master01:~$ curl -D- <WORKER_NODE_IP> -H 'Host: red.example.com'
+HTTP/1.1 200 OK
+Server: nginx/1.17.6
+Date: Wed, 18 Dec 2019 06:59:19 GMT
+Content-Type: text/html
+Content-Length: 4
+Connection: keep-alive
+Last-Modified: Wed, 18 Dec 2019 06:56:53 GMT
+ETag: "5df9cdb5-4"
+Accept-Ranges: bytes
+
+RED
+ubuntu@master01:~$ curl -D- <WORKER_NODE_IP>/red -H 'Host: example.com'
+HTTP/1.1 200 OK
+Server: nginx/1.17.6
+Date: Wed, 18 Dec 2019 06:59:31 GMT
+Content-Type: text/html
+Content-Length: 4
+Connection: keep-alive
+Last-Modified: Wed, 18 Dec 2019 06:56:53 GMT
+ETag: "5df9cdb5-4"
+Accept-Ranges: bytes
+
+RED
+ubuntu@master01:~$ curl -D- <WORKER_NODE_IP>/test -H 'Host: example.com'
+HTTP/1.1 404 Not Found
+Server: nginx/1.17.6
+Date: Wed, 18 Dec 2019 06:59:38 GMT
+Content-Type: text/html
+Content-Length: 153
+Connection: keep-alive
+
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.17.6</center>
+</body>
+</html>
 ```
