@@ -1,6 +1,18 @@
 Ingress controller on Bare metal
 ---
 
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Steps](#steps)
+    + [NGINX Ingress Controller manifests](#nginx-ingress-controller-manifests)
+    + [Create namespace, secrets, config maps and rbac](#create-namespace-secrets-config-maps-and-rbac)
+    + [Create ingress controller as a Deamonset](#create-ingress-controller-as-a-deamonset)
+  * [Deploy the application and Ingress resource](#deploy-the-application-and-ingress-resource)
+    + [Deploy the application](#deploy-the-application)
+    + [Expose the application with ClusterIP Service](#expose-the-application-with-clusterip-service)
+    + [Deploy Ingress resource](#deploy-ingress-resource)
+  * [Demo](#demo)
+
 ## Introduction
 This guide deploys an Ingress Controller and then configure an Ingress resource to route external requestes to kubernetes services.
 - There are two nginx based Ingress Controllers
@@ -32,9 +44,9 @@ export MANIFESTS=https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/v
 }
 ```
 
-#### Create ingress controller as a Deamonset
+#### Create Ingress Controller as a Deamonset
 
-When ingress controller is deployed as a deamonset, ports 80 and 443 of the Ingress controller container are mapped
+When Ingress Controller is deployed as a deamonset, ports 80 and 443 of the Ingress controller container are mapped
 to the same ports of the node where the container is running. To access the Ingress controller, use those ports
 and an IP address of any node of the cluster where the Ingress controller is running.
 
